@@ -4,3 +4,4 @@ def login(user, pwd):
 def logout(user):
     pass
 # TODO: validate token
+debug = True
