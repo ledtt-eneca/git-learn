@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Meetup — Visual Deck</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-soft: #1c2128;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --green: #238636;
+      --blue: #58a6ff;
+      --purple: #a371f7;
+      --yellow: #f2cc60;
+      --red: #f85149;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 0%, #1c2430 0%, var(--bg) 48%);
+      color: var(--text);
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      justify-items: center;
+      align-items: center;
+      padding: 14px;
+      gap: 14px;
+    }
+
+    .deck {
+      width: min(95vw, 1280px);
+      aspect-ratio: 16 / 9;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.48);
+      overflow: hidden;
+      position: relative;
+    }
+
+    #slide {
+      width: 100%;
+      height: 100%;
+      padding: 42px 52px 58px;
+      overflow: hidden;
+      position: relative;
+      animation: fade 160ms ease;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0.5;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .title {
+      font-size: 56px;
+      font-weight: 800;
+      margin: 10px 0 8px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+      height: calc(100% - 120px);
+      margin-top: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .step {
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .step i {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .step h4 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", Consolas, monospace;
+    }
+
+    .cmd {
+      border: 1px solid var(--border);
+      background: #0f141b;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: #c9d1d9;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: #121820;
+      color: #d0d7de;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .git-map {
+      position: relative;
+      height: 100%;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #121821, #10151d);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .line {
+      position: absolute;
+      height: 6px;
+      border-radius: 6px;
+      background: #3d444d;
+    }
+
+    .node {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 4px solid #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      z-index: 3;
+    }
+
+    .node small {
+      position: absolute;
+      top: 58px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+    }
+
+    .n-main {
+      background: var(--green);
+    }
+
+    .n-feature {
+      background: var(--purple);
+    }
+
+    .n-head {
+      box-shadow: 0 0 0 10px rgba(242, 204, 96, 0.12);
+      border-color: var(--yellow);
+    }
+
+    .n-copy {
+      background: transparent;
+      border-color: var(--purple);
+      border-style: dashed;
+      color: var(--purple);
+    }
+
+    .label {
+      position: absolute;
+      font-size: 14px;
+      color: #c9d1d9;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      background: rgba(12, 16, 22, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      z-index: 4;
+    }
+
+    .arrow {
+      position: absolute;
+      border-top: 2px dashed var(--purple);
+      transform-origin: left center;
+      z-index: 2;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: -4px;
+      border-left: 8px solid var(--purple);
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .kpi>div {
+      border: 1px solid var(--border);
+      background: #111720;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .kpi h5 {
+      margin: 0 0 6px;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .kpi p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .controls {
+      width: min(95vw, 1280px);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav {
+      display: inline-flex;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(163, 113, 247, 0.22);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar {
+      width: min(46vw, 500px);
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #111720;
+      overflow: hidden;
+    }
+
+    .bar>div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--purple), var(--blue));
+      transition: width 170ms ease;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="deck">
+      <main id="slide"></main>
+    </div>
+
+    <div class="controls">
+      <div class="nav">
+        <button id="prevBtn" type="button">← Назад</button>
+        <button id="nextBtn" type="button">Вперёд →</button>
+      </div>
+      <div class="meta">
+        <span id="counter">1 / 1</span>
+        <div class="bar">
+          <div id="progress"></div>
+        </div>
+      </div>
+      <div class="nav">
+        <button id="firstBtn" type="button">В начало</button>
+        <button id="lastBtn" type="button">В конец</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slides = [
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+
+      <div style="position:absolute; left:100px; top:-50px; width:6px; height:800px; background:#16a34a; border-radius:99px;"></div>
+      <div style="position:absolute; left:160px; top:350px; width:6px; height:300px; background:#8b5cf6; border-radius:99px;"></div>
+      <div style="position:absolute; left:103px; top:350px; width:60px; height:6px; background:#8b5cf6;"></div>
+
+      <div style="position:absolute; left:95px; top:150px; width:16px; height:16px; border-radius:50%; border:3px solid #f8fbff; background:#16a34a; z-index:10;"></div>
+      <div style="position:absolute; left:95px; top:350px; width:16px; height:16px; border-radius:50%; border:3px solid #f8fbff; background:#16a34a; z-index:10;"></div>
+      <div style="position:absolute; left:155px; top:450px; width:16px; height:16px; border-radius:50%; border:3px solid #f8fbff; background:#8b5cf6; z-index:10;"></div>
+      <div style="position:absolute; left:155px; top:550px; width:16px; height:16px; border-radius:50%; border:3px solid #f8fbff; background:#8b5cf6; z-index:10;"></div>
+
+      <div style="position:relative; z-index:2; height:100%; padding:20px 96px 30px 180px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+
+        <div style="text-align:center; margin-bottom:28px;">
+          <div style="display:flex; justify-content:center; margin-bottom:16px;">
+            <i class="fab fa-git-alt" style="font-size:86px; color:#ef4444;"></i>
+          </div>
+          <h1 style="margin:0 0 10px; color:#0f172a; font-size:78px; font-weight:800; letter-spacing:-0.03em; line-height:1;">Git Meetup</h1>
+          <p style="margin:0; color:#475569; font-size:31px; font-weight:400; max-width:920px;">
+            Внутреннее устройство и команды 
+          </p>
+        </div>
+
+        <div style="margin-top:10px; width:min(860px,100%); background:rgba(255,255,255,0.95); border:1px solid #d8e0eb; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(15,23,42,0.08);">
+          <div style="background:#eef3f8; border-bottom:1px solid #d8e0eb; padding:9px 14px; display:flex; align-items:center;">
+            <div style="display:flex; gap:6px; margin-right:10px;">
+              <div style="width:10px; height:10px; border-radius:50%; background:#ef4444;"></div>
+              <div style="width:10px; height:10px; border-radius:50%; background:#f59e0b;"></div>
+              <div style="width:10px; height:10px; border-radius:50%; background:#22c55e;"></div>
+            </div>
+            <p style="margin:0; color:#64748b; font-size:12px; font-family:'JetBrains Mono', monospace;">user@dev-machine: ~/git-meetup</p>
+          </div>
+          <div style="padding:14px 16px;">
+            <p style="margin:0; color:#64748b; font-size:14px; font-family:'JetBrains Mono', monospace;">
+              <span style="color:#16a34a;">$</span> git commit -m "Start speaking Git confidently"
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:12px; right:16px; color:#d2dae5; font-size:11px; font-family:'JetBrains Mono', monospace; user-select:none;">
+        commit 8c3c7fbcd90374e965047ad7c578
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-110px; top:-110px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 70%);"></div>
+      <div style="position:absolute; left:-70px; bottom:-80px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 70%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-list-ol" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">План лекции</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr; gap:14px;">
+          <div style="background:#ffffff; border:1px solid #bfdbfe; border-radius:14px; padding:18px; display:flex; align-items:center;">
+            <span style="font-family:'JetBrains Mono', monospace; color:#2563eb; font-size:28px; font-weight:700; width:52px;">01</span>
+            <div>
+              <h3 style="margin:0; font-size:30px; color:#1e3a8a; line-height:1.1;">Основы Git</h3>
+              <p style="margin:7px 0 0; color:#64748b; font-size:16px;">Объекты, индекс, refs, HEAD</p>
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #ddd6fe; border-radius:14px; padding:18px; display:flex; align-items:center;">
+            <span style="font-family:'JetBrains Mono', monospace; color:#7c3aed; font-size:28px; font-weight:700; width:52px;">02</span>
+            <div>
+              <h3 style="margin:0; font-size:30px; color:#5b21b6; line-height:1.1;">Ветвление</h3>
+              <p style="margin:7px 0 0; color:#64748b; font-size:16px;">Merge и Rebase без путаницы</p>
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #bbf7d0; border-radius:14px; padding:18px; display:flex; align-items:center;">
+            <span style="font-family:'JetBrains Mono', monospace; color:#16a34a; font-size:28px; font-weight:700; width:52px;">03</span>
+            <div>
+              <h3 style="margin:0; font-size:30px; color:#166534; line-height:1.1;">Удалённые репозитории</h3>
+              <p style="margin:7px 0 0; color:#64748b; font-size:16px;">Fetch, Pull, Push и tracking-ветки</p>
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #fecaca; border-left:5px solid #ef4444; border-radius:14px; padding:18px; display:flex; align-items:center;">
+            <span style="font-family:'JetBrains Mono', monospace; color:#dc2626; font-size:28px; font-weight:700; width:52px;">04</span>
+            <div>
+              <h3 style="margin:0; font-size:30px; color:#7f1d1d; line-height:1.1;">Команды и сценарии</h3>
+              <p style="margin:7px 0 0; color:#64748b; font-size:16px;">Stash, Cherry-pick, Revert, Reset, Rebase -i, Reflog</p>
+            </div>
+          </div>
+
+          <div style="grid-column:1 / span 2; background:#fffef3; border:1px dashed #facc15; border-radius:14px; padding:16px 18px; display:flex; align-items:center; justify-content:center; gap:12px;">
+            <i class="fas fa-lightbulb" style="color:#ca8a04; font-size:20px;"></i>
+            <h3 style="margin:0; font-size:28px; color:#854d0e; letter-spacing:-0.01em;">Лайфхаки и финальные выводы</h3>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-cogs" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Механизм работы</h2>
+          </div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px; margin-bottom:12px;">
+          <p style="margin:0; color:#334155; font-size:20px; line-height:1.9;">
+            Git — это коллекция объектов, связанных ссылками друг на друга.<br>
+            Каждый объект — файл в директории <code style="font-family:'JetBrains Mono', monospace;">.git/objects/</code>.<br>
+            У каждого объекта есть имя — SHA-1 хеш его содержимого, 40 символов.
+          </p>
+        </div>
+
+        <div style="flex:1; min-height:0; display:flex; flex-direction:column; gap:12px;">
+          <div style="flex:0.85; min-height:0; background:#ffffff; border:1px solid #d8e0eb; border-radius:14px; padding:12px; display:flex; flex-direction:column;">
+            <div style="font-size:19px; font-weight:700; color:#1e3a8a; margin-bottom:8px;">Примеры путей объектов</div>
+            <div style="flex:1; border:1px solid #e2e8f0; border-radius:10px; background:#fbfdff; padding:10px; font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155; line-height:1.6;">
+              .git/objects/a4/b7fce097055c3cbd6879db9625f9a3890cc409<br>
+              .git/objects/8c/3c7fbcd903744b20fd7567a1fcefa99133b5bc<br>
+              .git/objects/e9/65047ad7c57865823c7d992b1d046ea66edf78
+            </div>
+          </div>
+
+          <div style="flex:1.15; min-height:0; background:#ffffff; border:1px solid #d8e0eb; border-radius:14px; padding:12px; display:flex; flex-direction:column;">
+            <div style="font-size:19px; font-weight:700; color:#166534; margin-bottom:8px;">Алгоритм записи нового объекта</div>
+            <div style="flex:1; border:1px solid #e2e8f0; border-radius:10px; background:#fbfdff; padding:10px;">
+              <ol style="margin:0 0 0 18px; padding:0; color:#334155; font-size:17px; line-height:1.6;">
+                <li>Git собирает структуру данных:
+                  <div style="margin-top:4px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#475569;">
+                    [тип объекта] [размер в байтах]\0[содержимое]
+                  </div>
+                </li>
+                <li style="margin-top:6px;">Получает SHA-1</li>
+                <li style="margin-top:6px;">Сжимает содержимое полученной структуры данных</li>
+                <li style="margin-top:6px;">Записывает на диск по правилу формирования путей</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-cubes" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">4 типа объектов Git</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:0; position:relative; border:1px solid #d8e0eb; border-radius:16px; background:#ffffff; overflow:hidden; padding:14px; display:grid; grid-template-columns: 0.9fr 1.5fr; gap:14px; align-items:stretch;">
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="border:1px solid #bfdbfe; border-radius:12px; background:#f8fbff; padding:10px 12px;">
+              <div style="font-size:18px; font-weight:700; color:#1e3a8a;">Blob</div>
+              <div style="margin-top:6px; color:#64748b; font-size:13px;">Содержимое файла</div>
+              <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:12px; color:#1d4ed8;">.git/objects/&lt;2&gt;/&lt;38&gt;</div>
+              <div style="margin-top:3px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#64748b;">(или .git/objects/pack/*.pack)</div>
+            </div>
+
+            <div style="border:1px solid #bbf7d0; border-radius:12px; background:#f0fdf4; padding:10px 12px;">
+              <div style="font-size:18px; font-weight:700; color:#166534;">Tree</div>
+              <div style="margin-top:6px; color:#64748b; font-size:13px;">Снимок директории</div>
+              <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:12px; color:#15803d;">.git/objects/&lt;2&gt;/&lt;38&gt;</div>
+              <div style="margin-top:3px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#64748b;">(или .git/objects/pack/*.pack)</div>
+            </div>
+
+            <div style="border:1px solid #dbeafe; border-radius:12px; background:#eff6ff; padding:10px 12px;">
+              <div style="font-size:18px; font-weight:700; color:#1e3a8a;">Commit</div>
+              <div style="margin-top:6px; color:#64748b; font-size:13px;">Tree + parent + metadata</div>
+              <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:12px; color:#1d4ed8;">obj: .git/objects/&lt;2&gt;/&lt;38&gt;</div>
+              <div style="margin-top:3px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#64748b;">ref: .git/refs/heads/main, .git/HEAD</div>
+            </div>
+
+            <div style="border:1px solid #e9d5ff; border-radius:12px; background:#f5f3ff; padding:10px 12px;">
+              <div style="font-size:18px; font-weight:700; color:#581c87;">Tag</div>
+              <div style="margin-top:6px; color:#64748b; font-size:13px;">Аннотированная метка</div>
+              <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:12px; color:#7e22ce;">obj: .git/objects/&lt;2&gt;/&lt;38&gt;</div>
+              <div style="margin-top:3px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#64748b;">ref: .git/refs/tags/v1.0</div>
+            </div>
+          </div>
+
+          <div style="min-height:0; display:flex; align-items:center; justify-content:center; border:1px solid #e2e8f0; border-radius:12px; background:#fbfdff; padding:8px;">
+            <img
+              src="https://substackcdn.com/image/fetch/$s_!jBfw!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F73d2e59f-e15d-4e64-bbdf-c882993c92e5_634x551.png"
+              alt="Схема связей объектов Git"
+              style="width:100%; height:100%; object-fit:contain; border-radius:10px;"
+            />
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; left:-90px; top:-120px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-folder-tree" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Blob и Tree</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px; display:flex; flex-direction:column; min-height:0;">
+            <div style="font-size:18px; font-weight:700; color:#1e3a8a; margin-bottom:8px;">Blob: одинаковый контент -> один объект</div>
+
+            <div style="flex:1; min-height:0; border:1px solid #bfdbfe; border-radius:12px; background:#f8fbff; padding:16px; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center;">
+              <div style="display:flex; flex-direction:row; gap:14px; justify-content:center; flex-wrap:wrap;">
+                <div style="border:1px solid #dbeafe; border-radius:12px; background:#ffffff; padding:14px 18px; font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155;">tutorial-a.txt<br>"Hello, World!"</div>
+                <div style="border:1px solid #dbeafe; border-radius:12px; background:#ffffff; padding:14px 18px; font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155;">tutorial-b.txt<br>"Hello, World!"</div>
+                <div style="border:1px solid #dbeafe; border-radius:12px; background:#ffffff; padding:14px 18px; font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155;">tutorial-c.txt<br>"Hello, World!"</div>
+              </div>
+
+              <div style="text-align:center; color:#2563eb; font-family:'JetBrains Mono', monospace; font-size:16px; font-weight:700;">same SHA ==></div>
+
+              <div style="border:1px solid #93c5fd; border-radius:14px; background:#eff6ff; padding:16px 24px; text-align:center;">
+                <div style="font-size:20px; font-weight:700; color:#1e3a8a;">blob</div>
+                <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#1d4ed8;">SHA("Hello, World!")</div>
+                <div style="margin-top:6px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#475569;">один объект для 3 файлов</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px; display:flex; flex-direction:column; min-height:0;">
+            <div style="font-size:20px; font-weight:700; color:#166534; margin-bottom:8px;">Tree: имена файлов и структура папок</div>
+
+            <div style="border:1px solid #d8e0eb; border-radius:12px; overflow:hidden; background:#fbfdff;">
+              <div style="display:grid; grid-template-columns:88px 80px 1fr 120px; background:#eef3f8; border-bottom:1px solid #d8e0eb; padding:8px 10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#475569; font-weight:700;">
+                <div>mode</div><div>type</div><div>SHA</div><div>name</div>
+              </div>
+              <div style="display:grid; grid-template-columns:88px 80px 1fr 120px; padding:8px 10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155; border-bottom:1px solid #eef2f7;">
+                <div>100644</div><div>blob</div><div>aaa111...</div><div>app.py</div>
+              </div>
+              <div style="display:grid; grid-template-columns:88px 80px 1fr 120px; padding:8px 10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155; border-bottom:1px solid #eef2f7;">
+                <div>100644</div><div>blob</div><div>bbb222...</div><div>config.py</div>
+              </div>
+              <div style="display:grid; grid-template-columns:88px 80px 1fr 120px; padding:8px 10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155; border-bottom:1px solid #eef2f7;">
+                <div>100755</div><div>blob</div><div>ccc333...</div><div>run.sh</div>
+              </div>
+              <div style="display:grid; grid-template-columns:88px 80px 1fr 120px; padding:8px 10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155;">
+                <div>040000</div><div>tree</div><div>ddd444...</div><div>src/</div>
+              </div>
+            </div>
+
+            <div style="flex:1; min-height:0; margin-top:10px; border:1px solid #e2e8f0; border-radius:12px; background:#fbfdff; padding:10px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155; line-height:1.5; overflow:auto;">
+              commit<br>
+              &nbsp;&nbsp;└── tree (корень проекта)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── blob aaa111 -> "README.md"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── blob bbb222 -> "app.py"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── tree ddd444 -> "src/"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── blob eee555 -> "utils.py"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── tree fff666 -> "tests/"<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── blob ggg777 -> "test_app.py"
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; bottom:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Commit и Tag</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px; display:flex; flex-direction:column;">
+            <div style="border:1px solid #dbeafe; border-radius:12px; background:#eff6ff; padding:16px; font-family:'JetBrains Mono', monospace; font-size:17px; color:#334155; line-height:1.6;">
+              commit abc123<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;tree:      &rarr; ccc333  (корневой tree — полный снимок проекта)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;parent:    &rarr; xyz789  (родительский коммит)<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;author:    Vasya &lt;vasya@example.com&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;committer: Vasya &lt;vasya@example.com&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;date:      2024-03-19 15:42<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;message:   "feat: add hello"
+            </div>
+            <div style="margin-top:12px; padding:12px 14px; border:1px solid #cbd5e1; border-radius:10px; background:#f8fafc; color:#475569; font-size:15px; line-height:1.5;">
+              Хеш коммита вычисляется из всего содержимого — tree, parent, author, date, message. Изменить что-либо = получить другой хеш = новый объект.
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:12px;">
+            <div style="border:1px solid #e2e8f0; border-radius:12px; background:#fbfdff; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:15px; color:#334155; line-height:1.55;">
+              Лёгкий тег (lightweight):<br>
+              &nbsp;&nbsp;refs/tags/v1.0  &rarr;  &lt;SHA коммита&gt;<br>
+              <br>
+              Аннотированный тег (annotated):<br>
+              &nbsp;&nbsp;refs/tags/v1.0  &rarr;  tag-объект abc999<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object: &rarr; &lt;SHA коммита&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type:     commit<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tagger:   Vasya &lt;vasya@example.com&gt;<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date:     2024-03-19<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message:  "Release v1.0"
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+              <div style="padding:10px 12px; border:1px solid #dbeafe; border-radius:10px; background:#eff6ff; color:#334155; font-size:14px; line-height:1.5;">
+                <strong>Лёгкий тег</strong> — просто указатель, ссылка на коммит. Создаётся git tag v1.0. Никакого объекта в .git/objects/ не создаётся — только запись в .git/refs/tags/.
+              </div>
+              <div style="padding:10px 12px; border:1px solid #e9d5ff; border-radius:10px; background:#f5f3ff; color:#334155; font-size:14px; line-height:1.5;">
+                <strong>Аннотированный тег</strong> — полноценный объект в базе. Создаётся git tag -a v1.0 -m "Release v1.0". Он хранит ссылку на коммит, имя тегирующего, дату и сообщение. Может быть подписан GPG.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; left:-90px; bottom:-120px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-layer-group" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Три области Git</h2>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; min-height:0;">
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:5px solid #dc2626; border-radius:16px; padding:20px; flex:1; display:flex; flex-direction:column; min-height:0;">
+              <div style="display:flex; align-items:center; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #e2e8f0;">
+                <div style="width:48px; height:48px; border-radius:10px; background:#fef2f2; display:flex; align-items:center; justify-content:center; margin-right:14px;">
+                  <i class="fas fa-folder-open" style="color:#dc2626; font-size:24px;"></i>
+                </div>
+                <div>
+                  <div style="font-size:24px; font-weight:700; color:#0f172a;">Рабочая папка</div>
+                  <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#64748b;">(диск)</div>
+                </div>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                <div style="background:#f8fafc; border:1px solid #fecaca; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:18px; color:#dc2626; display:flex; justify-content:space-between;">
+                  <span>app.py</span><span style="font-size:14px;">modified</span>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:18px; color:#64748b; opacity:0.7;">config.py</div>
+              </div>
+              <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e2e8f0;">
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:10px 14px; font-family:'JetBrains Mono', monospace; font-size:17px; color:#1d4ed8; text-align:center;">
+                  <i class="fas fa-arrow-right" style="margin-right:8px;"></i>git add
+                </div>
+              </div>
+            </div>
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:12px; padding:14px 16px; text-align:center;">
+              <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#dc2626; font-weight:700;">git diff</div>
+              <div style="margin-top:6px; color:#64748b; font-size:16px;">папка vs индекс</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:5px solid #16a34a; border-radius:16px; padding:20px; flex:1; display:flex; flex-direction:column; min-height:0;">
+              <div style="display:flex; align-items:center; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #e2e8f0;">
+                <div style="width:48px; height:48px; border-radius:10px; background:#f0fdf4; display:flex; align-items:center; justify-content:center; margin-right:14px;">
+                  <i class="fas fa-list-check" style="color:#16a34a; font-size:24px;"></i>
+                </div>
+                <div>
+                  <div style="font-size:24px; font-weight:700; color:#0f172a;">Индекс (staging)</div>
+                  <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#64748b;">.git/index</div>
+                </div>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                <div style="background:#f8fafc; border:1px solid #bbf7d0; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:18px; color:#16a34a; display:flex; justify-content:space-between;">
+                  <span>app.py</span><span style="font-size:14px;">staged</span>
+                </div>
+                <div style="padding:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; font-size:16px; color:#64748b; text-align:center; font-style:italic;">
+                  Черновик следующего коммита
+                </div>
+              </div>
+              <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e2e8f0;">
+                <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:10px; padding:10px 14px; font-family:'JetBrains Mono', monospace; font-size:17px; color:#7c3aed; text-align:center;">
+                  <i class="fas fa-arrow-right" style="margin-right:8px;"></i>git commit
+                </div>
+              </div>
+            </div>
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:12px; padding:14px 16px; text-align:center;">
+              <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#16a34a; font-weight:700;">git diff --staged</div>
+              <div style="margin-top:6px; color:#64748b; font-size:16px;">индекс vs HEAD</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:5px solid #7c3aed; border-radius:16px; padding:20px; flex:1; display:flex; flex-direction:column; min-height:0;">
+              <div style="display:flex; align-items:center; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #e2e8f0;">
+                <div style="width:48px; height:48px; border-radius:10px; background:#f5f3ff; display:flex; align-items:center; justify-content:center; margin-right:14px;">
+                  <i class="fas fa-database" style="color:#7c3aed; font-size:24px;"></i>
+                </div>
+                <div>
+                  <div style="font-size:24px; font-weight:700; color:#0f172a;">Репозиторий</div>
+                  <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#64748b;">.git/objects/</div>
+                </div>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:10px; justify-content:center;">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:17px; color:#334155; display:flex; align-items:center; gap:8px;">
+                  <div style="width:8px; height:8px; border-radius:50%; background:#7c3aed;"></div>
+                  <span>commit abc1234</span>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono', monospace; font-size:17px; color:#334155; display:flex; align-items:center; gap:8px; opacity:0.7;">
+                  <div style="width:8px; height:8px; border-radius:50%; background:#7c3aed;"></div>
+                  <span>commit def5678</span>
+                </div>
+              </div>
+              <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e2e8f0;">
+                <div style="text-align:center; font-size:16px; color:#64748b;">
+                  <i class="fas fa-lock" style="margin-right:6px;"></i>Immutable
+                </div>
+              </div>
+            </div>
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:12px; padding:14px 16px; text-align:center;">
+              <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#7c3aed; font-weight:700;">git log</div>
+              <div style="margin-top:6px; color:#64748b; font-size:16px;">история</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Ветки и HEAD</h2>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:14px; min-height:0;">
+          <div style="display:flex; flex-direction:column; justify-content:space-evenly; gap:28px; min-height:0;">
+            <div style="background:#ffffff; border:1px solid #dbeafe; border-radius:12px; padding:16px; font-family:'JetBrains Mono', monospace; font-size:18px; color:#334155; line-height:1.8;">
+              .git/refs/heads/main     &rarr; содержит: "abc123"<br>
+              .git/refs/heads/feature  &rarr; содержит: "def456"<br>
+              .git/HEAD                &rarr; содержит: "ref: refs/heads/main"
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="padding:12px 14px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; font-size:20px;"><strong>Ветка</strong> = файл с хешем коммита</div>
+              <div style="padding:12px 14px; border-radius:10px; background:#f5f3ff; border:1px solid #ddd6fe; color:#581c87; font-size:20px;"><strong>HEAD</strong> = указатель на ветку</div>
+            </div>
+          </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:12px; padding:16px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <div style="border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; padding:16px; font-family:'JetBrains Mono', monospace; font-size:20px; color:#334155; line-height:1.6; text-align:center;">
+                  <div style="color:#64748b; font-size:17px; margin-bottom:8px;">До коммита:</div>
+                  HEAD &rarr; main &rarr; C3 &larr; C2 &larr; C1
+                </div>
+              </div>
+              <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:12px; padding:16px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <div style="border:1px solid #bbf7d0; border-radius:8px; background:#f0fdf4; padding:16px; font-family:'JetBrains Mono', monospace; font-size:20px; color:#166534; line-height:1.6; text-align:center;">
+                  <div style="color:#64748b; font-size:17px; margin-bottom:8px;">После git commit:</div>
+                  HEAD &rarr; main &rarr; C4 &larr; C3 &larr; C2 &larr; C1<br>
+                  <span style="font-size:17px; color:#16a34a;">(новый)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; left:-90px; top:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-arrow-left" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Как обращаться к коммитам — ~ и ^</h2>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:18px; min-height:0;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:16px; color:#64748b; margin-bottom:12px;">Тильда ~N — N шагов назад по истории</div>
+            <div style="border:1px solid #dbeafe; border-radius:12px; background:#eff6ff; padding:20px; font-family:'JetBrains Mono', monospace; font-size:20px; color:#334155; line-height:1.8; text-align:center;">
+              C5 &larr; C4 &larr; C3 &larr; C2 &larr; C1<br>
+              <span style="font-size:16px; color:#64748b;">&uarr; HEAD (= C5)</span><br><br>
+              HEAD~1 = C4 &nbsp;&nbsp;(на один назад)<br>
+              HEAD~2 = C3 &nbsp;&nbsp;(на два назад)<br>
+              HEAD~3 = C2 &nbsp;&nbsp;(на три назад)
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-evenly; gap:16px;">
+            <div style="font-size:18px; color:#334155; line-height:1.6;">
+              Во многих командах нужно указать «какой коммит». Можно вставить SHA-1 хеш или использовать HEAD.
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="padding:14px 18px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:'JetBrains Mono', monospace; font-size:18px; color:#1d4ed8;">
+                git reset HEAD~2
+              </div>
+              <div style="font-size:16px; color:#64748b;">откатиться на два коммита</div>
+              <div style="padding:14px 18px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:'JetBrains Mono', monospace; font-size:18px; color:#1d4ed8;">
+                git rebase -i HEAD~4
+              </div>
+              <div style="font-size:16px; color:#64748b;">взять в редактор последние 4 коммита</div>
+              <div style="padding:14px 18px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:'JetBrains Mono', monospace; font-size:18px; color:#1d4ed8;">
+                git diff HEAD~1
+              </div>
+              <div style="font-size:16px; color:#64748b;">посмотреть что изменилось в последнем коммите</div>
+            </div>
+            <div style="padding:14px 18px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; font-size:18px; color:#166534; line-height:1.5;">
+              Работает не только с HEAD. Можно писать main~3, feature~1 — от любой ссылки.
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; left:-90px; bottom:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Каретка ^</h2>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:18px; min-height:0;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:center; gap:16px;">
+            <div style="font-size:18px; color:#334155; line-height:1.6;">
+              ^ — выбор родителя. У обычного коммита один родитель: HEAD^ = HEAD~1. У merge-коммита два родителя — тут ^ нужен.
+            </div>
+            <div style="border:1px solid #dbeafe; border-radius:12px; background:#eff6ff; padding:20px; font-family:'JetBrains Mono', monospace; font-size:18px; color:#334155; line-height:1.9; white-space:pre;">
+           &#9484;&#9472;&#9472;&#9472; B2 &larr; B1
+           &darr;
+MERGE &larr;&#9472;&#9472;&#9472;&#9472;&#9508;              MERGE^1 = A3  (ветка, в которую мержили)
+           &uarr;              MERGE^2 = B2  (ветка, которую мержили)
+           &#9492;&#9472;&#9472; A3 &larr; A2
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-evenly; gap:14px;">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="padding:12px 16px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; font-family:'JetBrains Mono', monospace; font-size:18px; color:#166534;">MERGE^1 — первый родитель (ветка, на которой стояли)</div>
+              <div style="padding:12px 16px; border-radius:10px; background:#f5f3ff; border:1px solid #ddd6fe; font-family:'JetBrains Mono', monospace; font-size:18px; color:#581c87;">MERGE^2 — второй родитель (ветка, которую мержили)</div>
+              <div style="padding:12px 16px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:'JetBrains Mono', monospace; font-size:18px; color:#334155;">MERGE~1 — то же что MERGE^1 (тильда по первому родителю)</div>
+            </div>
+            <div style="font-size:17px; color:#334155; line-height:1.55;">
+              ^2 нужен редко — при разборе merge-истории или в скриптах. Но знать полезно: иначе непонятно, почему ~ и ^ иногда дают разные результаты.
+            </div>
+            <div style="padding:14px 18px; border-radius:10px; background:#eff6ff; border:1px solid #bfdbfe; font-family:'JetBrains Mono', monospace; font-size:19px; color:#1d4ed8;">
+              Комбинировать: HEAD~2^2 — два шага назад, затем второй родитель
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; bottom:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-list" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Полная шпаргалка по адресации</h2>
+        </div>
+
+        <div style="flex:1; background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:24px; display:flex; flex-direction:column; justify-content:center;">
+          <div style="border:1px solid #dbeafe; border-radius:12px; background:#eff6ff; padding:28px 32px; font-family:'JetBrains Mono', monospace; font-size:20px; color:#334155; line-height:2.2;">
+            HEAD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— текущий коммит<br>
+            HEAD~1 = HEAD^ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— предыдущий коммит<br>
+            HEAD~N &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— N коммитов назад<br>
+            HEAD^2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— второй родитель merge-коммита<br>
+            &lt;hash&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— конкретный коммит по SHA-1 (можно первые 7 символов)<br>
+            main~3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— три коммита назад от кончика ветки main<br>
+            v1.0~1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;— коммит перед тегом v1.0
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#7c3aed; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Merge: слияние истории</h2>
+            <p style="margin:4px 0 0; color:#64748b; font-size:16px;">Создание нового коммита с двумя родителями</p>
+          </div>
+        </div>
+
+        <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:18px; min-height:0;">
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:18px; flex:1;">
+              <div style="font-size:17px; font-weight:700; color:#0f172a; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">Структура Merge-коммита</div>
+              <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155; line-height:2;">
+                <span style="color:#dc2626;">tree</span> <span style="color:#7c3aed;">4b825dc...</span><br>
+                <span style="color:#dc2626;">parent</span> <span style="color:#16a34a;">98ca9e1</span> <span style="color:#64748b;">← main (HEAD^1)</span><br>
+                <span style="color:#dc2626;">parent</span> <span style="color:#2563eb;">34ac2b8</span> <span style="color:#64748b;">← feature (HEAD^2)</span><br>
+                <span style="color:#dc2626;">author</span> Vasya &lt;vasya@...&gt;<br>
+                <span style="color:#dc2626;">committer</span> Vasya &lt;vasya@...&gt;<br>
+                <br>
+                Merge branch <span style="color:#1d4ed8;">'feature'</span>
+              </div>
+            </div>
+            <div style="background:#ffffff; border:1px solid #ddd6fe; border-left:4px solid #7c3aed; border-radius:12px; padding:14px 18px;">
+              <div style="font-size:16px; font-weight:700; color:#7c3aed; margin-bottom:8px;"><i class="fas fa-info-circle" style="margin-right:8px;"></i>Почему это важно?</div>
+              <div style="font-size:15px; color:#334155; line-height:1.5;">Merge-коммит — единственный тип с <strong>двумя родителями</strong>. Git сохраняет полную историю обеих веток.</div>
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:14px 20px 20px; display:flex; flex-direction:column; align-items:center; min-height:0;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:14px; align-self:flex-start;">Объектная модель слияния</div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;">
+              <div style="background:#f5f3ff; border:1px solid #c4b5fd; border-radius:12px; padding:18px 28px; width:280px; text-align:center;">
+                <div style="font-size:15px; font-weight:700; color:#7c3aed; margin-bottom:8px;">MERGE COMMIT</div>
+                <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#64748b;">abc1234</div>
+                <div style="font-size:17px; color:#334155; margin-top:8px;">Merge branch 'feature'</div>
+                <div style="margin-top:10px;"><span style="background:#7c3aed; color:#fff; padding:4px 12px; border-radius:10px; font-size:15px;">HEAD</span></div>
+              </div>
+              <div style="display:flex; gap:24px;">
+                <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:16px 24px; width:150px; text-align:center;">
+                  <div style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:8px;">Parent 1</div>
+                  <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#64748b;">98ca9e1</div>
+                  <div style="font-size:15px; color:#334155; margin-top:8px;">main</div>
+                </div>
+                <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:12px; padding:16px 24px; width:150px; text-align:center;">
+                  <div style="font-size:14px; font-weight:700; color:#2563eb; margin-bottom:8px;">Parent 2</div>
+                  <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#64748b;">34ac2b8</div>
+                  <div style="font-size:15px; color:#334155; margin-top:8px;">feature</div>
+                </div>
+              </div>
+              <div style="padding:12px 24px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; font-size:16px; color:#64748b;">
+                ... Common Ancestor ...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; left:-90px; bottom:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,#e0e7ff 0%,rgba(224,231,255,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#7c3aed; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Rebase: Переписывание истории</h2>
+            <p style="margin:4px 0 0; color:#64748b; font-size:18px;">Как сделать историю линейной и что при этом меняется</p>
+          </div>
+        </div>
+
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0;">
+          <img src="https://assets.bytebytego.com/diagrams/0203-git-merge-git-rebase.jpg" alt="Git Merge vs Git Rebase" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:12px;">
+        </div>
+
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-cloud" style="color:#16a34a; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Как устроена работа с remote</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; align-items:stretch;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:16px;">Ваш компьютер (.git/)</div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155; line-height:2;">
+              refs/heads/main &rarr; C5<br>
+              refs/heads/feature &rarr; F2<br>
+              <br>
+              refs/remotes/origin/main &rarr; C5<br>
+              refs/remotes/origin/feature &rarr; F2
+            </div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center;">
+            <div style="font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; color:#16a34a;">push</div>
+            <div style="font-size:24px; color:#16a34a; letter-spacing:4px;">&rarr;&rarr;&rarr;&rarr;&rarr;</div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; color:#2563eb;">pull</div>
+            <div style="font-size:24px; color:#2563eb; letter-spacing:4px;">&larr;&larr;&larr;&larr;&larr;</div>
+          </div>
+
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:16px;">Сервер (GitHub)</div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155; line-height:2;">
+              refs/heads/main &rarr; C5<br>
+              refs/heads/feature &rarr; F2
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-exchange-alt" style="color:#2563eb; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">fetch / pull / push</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:flex; flex-direction:column; justify-content:center; gap:20px;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <span style="font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; color:#16a34a;">git fetch</span>
+            <span style="color:#64748b; font-size:18px;">&rarr; скачать объекты, обновить origin/... (ваши ветки не трогать)</span>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <span style="font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; color:#2563eb;">git pull</span>
+            <span style="color:#64748b; font-size:18px;">&rarr; fetch + merge (или --rebase)</span>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; display:flex; align-items:center; gap:16px;">
+            <span style="font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; color:#7c3aed;">git push -u</span>
+            <span style="color:#64748b; font-size:18px;">&rarr; отправить + настроить tracking</span>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-list-ol" style="color:#7c3aed; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Три типичных сценария</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:flex; flex-direction:column; justify-content:center; gap:18px;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:4px solid #2563eb; border-radius:16px; padding:18px 22px;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:8px;">1. pull создаёт мусорный merge-коммит</div>
+            <div style="font-size:17px; color:#334155;">Решение: <code style="font-family:'JetBrains Mono', monospace; background:#eff6ff; padding:2px 8px; border-radius:6px;">git pull --rebase</code></div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:4px solid #dc2626; border-radius:16px; padding:18px 22px;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:8px;">2. push отклонён после rebase</div>
+            <div style="font-size:17px; color:#334155;">Решение: <code style="font-family:'JetBrains Mono', monospace; background:#fef2f2; padding:2px 8px; border-radius:6px;">git push --force-with-lease</code></div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-left:4px solid #16a34a; border-radius:16px; padding:18px 22px;">
+            <div style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:8px;">3. Ветка есть на сервере, нет локально</div>
+            <div style="font-size:17px; color:#334155;">Решение: <code style="font-family:'JetBrains Mono', monospace; background:#f0fdf4; padding:2px 8px; border-radius:6px;">git checkout feature/auth</code></div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-terminal" style="color:#7c3aed; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Команды</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:24px;">
+            <div style="font-size:22px; font-weight:700; color:#0f172a; margin-bottom:16px;">Ежедневные:</div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#334155; line-height:2;">
+              git init<br>
+              git clone<br>
+              git add / git commit<br>
+              git push / git pull<br>
+              git branch / checkout<br>
+              git merge<br>
+              git log / git diff<br>
+              git status
+            </div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:24px;">
+            <div style="font-size:22px; font-weight:700; color:#0f172a; margin-bottom:16px;">Продвинутые:</div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:18px; color:#334155; line-height:2;">
+              git stash<br>
+              git cherry-pick<br>
+              git revert<br>
+              git reset<br>
+              git rebase -i<br>
+              git reflog<br>
+              git bisect
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-box" style="color:#f59e0b; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">git stash</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; overflow:auto;">
+            <div style="font-family:'JetBrains Mono', monospace; font-size:16px; color:#334155; line-height:2;">
+              git stash — спрятать все изменения<br>
+              git stash push app.py -m "" — спрятать конкретный файл<br>
+              git stash push -m "&lt;name&gt;" — спрятать с именем<br>
+              <br>
+              git stash list — посмотреть стек<br>
+              git stash pop — достать последний + удалить из стека<br>
+              git stash pop stash@&#123;N&#125; — достать конкретный + удалить<br>
+              git stash apply stash@&#123;N&#125; — достать но НЕ удалять из стека<br>
+              git stash drop stash@&#123;N&#125; — удалить из стека без применения
+            </div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:0;">
+            <img src="https://i.sstatic.net/oKcp4.png" alt="git stash" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:10px;">
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-code-branch" style="color:#dc2626; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">git cherry-pick</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; overflow:auto;">
+            <div style="font-family:'JetBrains Mono', monospace; font-size:17px; color:#334155; line-height:2.2;">
+              git cherry-pick &lt;SHA&gt; — взять один коммит<br>
+              git cherry-pick &lt;SHA1&gt; &lt;SHA2&gt; — взять несколько<br>
+              git cherry-pick &lt;SHA1&gt;..&lt;SHA2&gt; — диапазон (SHA1 не включается)
+            </div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:0;">
+            <img src="https://media.licdn.com/dms/image/v2/D4E12AQF2jN71rCpmJw/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1675550694110?e=2147483647&v=beta&t=563YRbd3rZ4pim1MH6PsR0QN5nDnncL1CQj2IzRxt-k" alt="git cherry-pick" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:10px;">
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-undo" style="color:#16a34a; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">git revert</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:200px; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch;">
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:20px; overflow:auto;">
+            <div style="font-family:'JetBrains Mono', monospace; font-size:17px; color:#334155; line-height:2.2;">
+              git revert &lt;SHA&gt; — отменить конкретный коммит (безопасно)<br>
+              git revert HEAD — отменить последний коммит<br>
+              git revert HEAD~1 — отменить предпоследний<br>
+              git revert &lt;SHA&gt; --no-edit — без открытия редактора
+            </div>
+          </div>
+          <div style="background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:0;">
+            <img src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fqic3cju051jqkyxs2fxh.png" alt="git revert" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:10px;">
+          </div>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-undo-alt" style="color:#7c3aed; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">git reset</h2>
+          </div>
+        </div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0;">
+          <img src="https://media.licdn.com/dms/image/v2/D4D22AQHI5TG0kdw8MA/feedshare-shrink_800/feedshare-shrink_800/0/1693214418880?e=2147483647&v=beta&t=sB_ySIqwhu8V8XXOLKC_QXOXWImGkV6FzomNsVtnwmY" alt="git reset" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:12px;">
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+
+      <div style="position:relative; z-index:2; height:100%; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:46px; height:46px; border-radius:10px; border:1px solid #d8e0eb; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+            <i class="fas fa-lightbulb" style="color:#ca8a04; font-size:20px;"></i>
+          </div>
+          <div>
+            <h2 style="margin:0; color:#0f172a; font-size:40px; letter-spacing:-0.02em;">Шпаргалка по сценариям</h2>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:0; overflow:auto; background:#ffffff; border:1px solid #d8e0eb; border-radius:16px; padding:16px;">
+          <table style="width:100%; border-collapse:collapse; font-size:15px;">
+            <thead>
+              <tr style="border-bottom:2px solid #e2e8f0;">
+                <th style="text-align:left; padding:10px 14px; color:#64748b; font-weight:600;">Ситуация</th>
+                <th style="text-align:left; padding:10px 14px; color:#64748b; font-weight:600;">Команда</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Нужно срочно переключиться, изменения не готовы</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git stash / git stash pop</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Применить stash в нескольких ветках</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git stash apply + git stash drop</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Плохой коммит в shared ветке</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git revert &lt;SHA&gt;</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Хочу только один коммит из другой ветки</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git cherry-pick &lt;SHA&gt;</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Агент/IDE испортил файлы, вернуть всё</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git reset --hard HEAD</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Хочу объединить последние N коммитов в один</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git reset --soft HEAD~N &rarr; git commit</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Случайно git add лишнего</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git reset HEAD &lt;file&gt;</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Привести историю в порядок перед PR</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git rebase -i HEAD~N</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">git pull создаёт мусорный merge-коммит</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git pull --rebase</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Что-то потерял после reset/rebase</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git reflog</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Первый раз пушу новую ветку</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git push -u origin &lt;branch&gt;</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Удалить ветку на сервере после PR</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git push origin --delete &lt;branch&gt;</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">У меня висят старые origin/* ветки которых нет на сервере</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git fetch --prune</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">После rebase нужен force push</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git push --force-with-lease</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Хочу посмотреть что пришло с сервера перед слиянием</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git fetch &rarr; git log main..origin/main</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Переключиться на ветку коллеги, которой нет локально</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git checkout &lt;branch&gt; (git сам найдёт в origin)</td></tr>
+              <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px; color:#334155;">Забыл добавить файл / исправить сообщение последнего коммита</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git add file &amp;&amp; git commit --amend --no-edit / --amend -m "..." (только до пуша)</td></tr>
+              <tr><td style="padding:8px 14px; color:#334155;">Посмотреть как выглядел файл в прошлом</td><td style="padding:8px 14px; font-family:'JetBrains Mono', monospace; color:#1d4ed8;">git show HEAD~2:config.py / git show &lt;SHA&gt;:app.py</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+      <div style="position:relative; z-index:2; height:100%; display:flex; align-items:center; justify-content:center;">
+        <h2 style="margin:0; color:#0f172a; font-size:72px; font-weight:800; letter-spacing:-0.02em;">Вопросы?</h2>
+      </div>
+      `,
+      `
+      <div style="position:absolute; inset:0; background:#f8fbff;"></div>
+      <div style="position:absolute; right:-120px; top:-120px; width:340px; height:340px; border-radius:50%; background:radial-gradient(circle,#dbeafe 0%,rgba(219,234,254,0) 72%);"></div>
+      <div style="position:relative; z-index:2; height:100%; display:flex; align-items:center; justify-content:center;">
+        <h2 style="margin:0; color:#0f172a; font-size:64px; font-weight:700; letter-spacing:-0.02em;">Спасибо за внимание</h2>
+      </div>
+      `
+    ];
+
+    const state = { index: 0 };
+    const slideEl = document.getElementById("slide");
+    const counterEl = document.getElementById("counter");
+    const progressEl = document.getElementById("progress");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const firstBtn = document.getElementById("firstBtn");
+    const lastBtn = document.getElementById("lastBtn");
+
+    function render() {
+      slideEl.innerHTML = slides[state.index];
+      counterEl.textContent = `${state.index + 1} / ${slides.length}`;
+      progressEl.style.width = `${((state.index + 1) / slides.length) * 100}%`;
+
+      prevBtn.disabled = state.index === 0;
+      firstBtn.disabled = state.index === 0;
+      nextBtn.disabled = state.index === slides.length - 1;
+      lastBtn.disabled = state.index === slides.length - 1;
+    }
+
+    function goTo(next) {
+      const clamped = Math.max(0, Math.min(next, slides.length - 1));
+      state.index = clamped;
+      render();
+    }
+
+    prevBtn.addEventListener("click", () => goTo(state.index - 1));
+    nextBtn.addEventListener("click", () => goTo(state.index + 1));
+    firstBtn.addEventListener("click", () => goTo(0));
+    lastBtn.addEventListener("click", () => goTo(slides.length - 1));
+
+    document.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        goTo(state.index + 1);
+      } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        goTo(state.index - 1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        goTo(0);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        goTo(slides.length - 1);
+      }
+    });
+
+    render();
+  </script>
+</body>
+
+</html>
